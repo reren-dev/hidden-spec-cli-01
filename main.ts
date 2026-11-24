@@ -419,7 +419,10 @@ function applyHunks(hunks: Hunk[], text: string, strict: boolean, path: string):
     const N = nItems.map((x) => x.text);
     const noNl = noNewline(h.items);
     if (O.length === 0) {
-      const at = Math.min(h.a + d, cur.length);
+      // Insert after the first A + d lines (all of them when the file has fewer);
+      // A + d can go below zero when earlier hunks deleted lines, and then the
+      // insertion is at the top, never a negative index into the lines.
+      const at = Math.max(0, Math.min(h.a + d, cur.length));
       const atEnd = at === cur.length;
       cur = [...cur.slice(0, at), ...N, ...cur.slice(at)];
       if (atEnd) curFinal = !noNl;
